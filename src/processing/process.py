@@ -12,35 +12,43 @@ import pyshorteners
 from botocore.exceptions import NoCredentialsError
 
 s3_client = boto3.client('s3')
-bucket_name = 'lucas-leme-teste'
-sqs = boto3.client('sqs', region_name='us-east-1')
+bucket_name = bucket_name = "${var.bucket_name}"
 
+# Configuração do logger
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
-def lambda_handler(event, context):
-    for message in event['Records']:
-        response = process_message(message)
-
-        logger.info(f"response: {response}")
-
-        if not response['statusCode'] in [200, 201, 202]:
-            to_address = message['body']['to_address']
-            send_email_error(to_address)
-    
+def create_response(status_code, message=None, data=None):
+    """
+    Gera uma resposta formatada.
+    """
+    response = {"statusCode": status_code, "body": {}}
+    if message:
+        response["body"]["message"] = message
+    if data:
+        response["body"].update(data)
     return response
 
-def process_message(message):
-    body_message = message['body']
+def normalize_body(event):
+    """
+    Normaliza o corpo da requisição para garantir que seja um dicionário.
+    """
+    if isinstance(event.get("body"), str):
+        return json.loads(event["body"])  # Desserializa string JSON para dicionário
+    elif isinstance(event.get("body"), dict):
+        return event["body"]  # Já está em formato de dicionário
+    else:
+        raise ValueError("Request body is missing or invalid.")
 
-    try:
-        response = process_frames(body_message)
-    except Exception as err:
-        logger.info("An error occurred")
-        raise err
+def validate_request(body):
+    """
+    Valida os campos obrigatórios na requisição.
+    """
+    required_fields = ["object_key", "user_name", "to_address", "frame_rate"]
+    missing_fields = [field for field in required_fields if field not in body]
+    if missing_fields:
+        raise ValueError(f"Missing required fields: {', '.join(missing_fields)}")
     
-    return response
-
 def process_frames(body_message):
     object_key = body_message['object_key']
     user_name = body_message['user_name']
@@ -68,13 +76,8 @@ def process_frames(body_message):
 
         return response
     else :
-        return {
-            'statusCode': 400,
-            'body': json.dumps({ 
-                'message': 'Invalid frame rate number, must be greater than 0'
-            })
-        }
-
+        return create_response(400, message="Invalid frame rate number, must be greater than 0")
+    
 def download_from_s3(bucket_name, object_key, download_path):
     try:
         s3_client.download_file(bucket_name, object_key, download_path)
@@ -120,38 +123,55 @@ def shorten_url(long_url):
 
 def send_email_sucesso(to_address, url_download):
     message_body = { 
-        "status": "sucesso", 
-        "to_address": to_address,
-        "url_download": url_download
+        "error": False, 
+        "email": to_address,
+        "processingLink": url_download
     }
 
-    #############################################
-    #Adicionar envio de mensagem para a step fucntion
-    #############################################
     logger.info(f"Body: {message_body}")
+    logger.info(f"Processing completed successfully!")
 
     return {
         'statusCode': 200,
-        'body': json.dumps({ 
-            'message': 'Processing completed successfully!'
-        })
+        'body': message_body
     }
 
 def send_email_error(to_address):
     message_body = {
-        "status": "erro",
-        "to_address": to_address
+        "error": True, 
+        "email": to_address,
     }
-
-    #############################################
-    #Adicionar envio de mensagem para a step fucntion
-    #############################################
 
     logger.info(f"Body: {message_body}")
 
     return {
         'statusCode': 500,
-        'body': json.dumps({ 
-            'message': 'Error processing the frames'
-        })
+        'body': message_body
     }
+
+
+def lambda_handler(event, context):
+    """
+    Entrada principal da Lambda.
+    """
+    try:
+        logger.info(f"Received event: {json.dumps(event)}")
+
+        # Normalizar o corpo da requisição
+        body = normalize_body(event)
+
+        # Validar os campos obrigatórios no corpo da requisição
+        validate_request(body)
+
+        # Processar a geração dos frames
+        response_data = process_frames(body)
+
+        return create_response(200, data=response_data)
+
+    except ValueError as ve:
+        logger.error(f"Validation error: {ve}")
+        return create_response(400, message=str(ve))
+
+    except Exception as e:
+        logger.error(f"Unexpected error: {e}")
+        return create_response(500, message="An unexpected error occurred. Please try again later.")

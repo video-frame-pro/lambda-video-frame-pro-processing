@@ -42,6 +42,7 @@ A função Lambda espera um evento com os seguintes campos:
 
 ## Exemplos de Resposta
 
+### Sucesso
 
 ```json
 {
@@ -53,6 +54,18 @@ A função Lambda espera um evento com os seguintes campos:
 }
 ```
 
+### Erro
+
+```json
+{
+   "body": {
+      "email": "usuario@email.com",
+      "error": true
+   }
+}
+```
+
+---
 
 ## Tecnologias
 
