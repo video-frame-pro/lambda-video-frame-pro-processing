@@ -3,17 +3,17 @@ import sys
 sys.path.append('/opt/bin/')
 
 import json
+import logging
 import os
 import zipfile
+
 import boto3
 import pyshorteners
 from botocore.exceptions import NoCredentialsError
-import logging
 
 s3_client = boto3.client('s3')
 bucket_name = 'lucas-leme-teste'
 sqs = boto3.client('sqs', region_name='us-east-1')
-queue_url = 'https://sqs.us-east-1.amazonaws.com/440744219680/VideoFrameProSend'
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
@@ -125,11 +125,9 @@ def send_email_sucesso(to_address, url_download):
         "url_download": url_download
     }
 
-    sqs.send_message(
-        QueueUrl=queue_url,
-        MessageBody=json.dumps(message_body)
-    )
-
+    #############################################
+    #Adicionar envio de mensagem para a step fucntion
+    #############################################
     logger.info(f"Body: {message_body}")
 
     return {
@@ -145,10 +143,9 @@ def send_email_error(to_address):
         "to_address": to_address
     }
 
-    sqs.send_message(
-        QueueUrl=queue_url,
-        MessageBody=json.dumps(message_body)
-    )
+    #############################################
+    #Adicionar envio de mensagem para a step fucntion
+    #############################################
 
     logger.info(f"Body: {message_body}")
 
