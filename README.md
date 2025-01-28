@@ -19,10 +19,10 @@ Caso o video tenha 22 segundos será gerado 2 frames, o primeiro no 10° segundo
 
 A função Lambda espera um evento com os seguintes campos:
 
-- **object_key** (obrigatório): Endereço do video no bucket S3.
-- **user_name** (obrigatório) nome do usuário solicitante.
-- **to_address** (obrigatório): Email no qual será enviado os frames.
-- **frame_rate** (obrigatório): Intervalo de tempo em segundo entre cada frame.
+- **videoId** (obrigatório): Endereço do video no bucket S3.
+- **userName** (obrigatório) nome do usuário solicitante.
+- **email** (obrigatório): Email no qual será enviado os frames.
+- **frameRate** (obrigatório): Intervalo de tempo em segundo entre cada frame.
 
 ---
 
@@ -31,10 +31,10 @@ A função Lambda espera um evento com os seguintes campos:
 ```json
 {
    "body": {
-      "object_key": "video_exemplo.mp4",
-      "user_name": "usuario",
-      "to_address": "usuario@email.com",
-      "frame_rate": 10
+      "videoId": "video_exemplo.mp4",
+      "userName": "usuario",
+      "email": "usuario@email.com",
+      "frameRate": 10
    }
 }
 ```
