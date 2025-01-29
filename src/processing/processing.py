@@ -57,31 +57,36 @@ def process_frames(body_message):
     frame_rate = body_message['frameRate']
 
     download_path_bucket = f"videos/{user_name}/{video_id}/upload/{video_id}-source.mp4"
-    lambda_video_path = f"/tmp/{video_id}"
+    temp_download_path = f"/tmp/{video_id}"
     output_folder = "/tmp/frames"
-    zip_path = "/tmp/frames.zip"
+    zip_path = f"/tmp/{video_id}-source.zip"
     output_zip_key = f"videos/{user_name}/{video_id}/processed/{os.path.basename(zip_path)}"
 
     if frame_rate > 0:
-        download_from_s3(download_path_bucket, lambda_video_path)
-        extract_frames(lambda_video_path, output_folder, frame_rate)
+        download_from_s3(download_path_bucket, temp_download_path)
+        extract_frames(temp_download_path, output_folder, frame_rate)
         create_zip(output_folder, zip_path)
+        ##############################################
+        #verificar tamanho do zip se é menor que 100mb
+        ##############################################
         upload_to_s3(output_zip_key, zip_path)
-
         url = generate_url(output_zip_key)
 
-        logger.info(f"url_download: {url}")
-        
-        response = send_email_sucesso(email, url)
+        response = {
+            'body': { 
+                "email": email,
+                "processingLink": url
+            }
+        }
 
-        return response
+        return create_response(200, message="Processing completed successfully!", data=response)
     else :
         return create_response(400, message="Invalid frame rate number, must be greater than 0")
     
-def download_from_s3(video_id, download_path):
+def download_from_s3(path_file, temp_download_path):
     try:
-        s3_client.download_file(BUCKET_NAME, video_id, download_path)
-        logger.info(f"Downloaded {video_id} from S3 bucket {BUCKET_NAME}")
+        s3_client.download_file(BUCKET_NAME, path_file, temp_download_path)
+        logger.info(f"Downloaded {path_file} from S3 bucket {BUCKET_NAME}")
     except NoCredentialsError:
         logger.info("Credentials not available")
 
@@ -105,41 +110,17 @@ def create_zip(output_folder, zip_path):
                 zipf.write(os.path.join(root, file), file)
     logger.info(f"Created zip file {zip_path}")
 
-def generate_url(video_id):
+def generate_url(output_zip_key):
     expiration=3600
     try:
         response = s3_client.generate_presigned_url('get_object',
-            Params={'Bucket': BUCKET_NAME, 'Key': video_id},
+            Params={'Bucket': BUCKET_NAME, 'Key': output_zip_key},
             ExpiresIn=expiration)
+        logger.info(f"url_download: {response}")
     except NoCredentialsError:
         logger.info("Credentials not available")
         raise NoCredentialsError("Credentials not available")
     return response
-
-def send_email_sucesso(email, url_download):
-    logger.info(f"Body: {message_body}")
-    logger.info(f"Processing completed successfully!")
-
-    return {
-        'statusCode': 200,
-        'body': { 
-            "email": email,
-            "processingLink": url_download
-        }
-    }
-
-def send_email_error(email):
-    message_body = {
-        "email": email,
-    }
-
-    logger.info(f"Body: {message_body}")
-
-    return {
-        'statusCode': 500,
-        'body': message_body
-    }
-
 
 def lambda_handler(event, context):
     """
