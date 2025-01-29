@@ -25,3 +25,9 @@ output "lambda_policy_name" {
   value       = aws_iam_policy.lambda_policy.name
   description = "Nome da política IAM associada à função Lambda principal"
 }
+
+######### LAYER OUTPUT #################################################
+output "lib_layer_arn" {
+  value       = data.aws_lambda_layer_version.lib_layer.arn
+  description = "ARN da Layer utilizada pela função Lambda"
+}
