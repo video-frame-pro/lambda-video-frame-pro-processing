@@ -68,11 +68,11 @@ def process_frames(body_message):
         create_zip(output_folder, zip_path)
         upload_to_s3(output_zip_key, zip_path)
 
-        long_url = generate_url(output_zip_key)
+        url = generate_url(output_zip_key)
 
-        logger.info(f"url_download: {long_url}")
+        logger.info(f"url_download: {url}")
         
-        response = send_email_sucesso(email, long_url)
+        response = send_email_sucesso(email, url)
 
         return response
     else :
@@ -113,27 +113,23 @@ def generate_url(videoId):
             ExpiresIn=expiration)
     except NoCredentialsError:
         logger.info("Credentials not available")
-        return None
+        raise NoCredentialsError("Credentials not available")
     return response
 
 def send_email_sucesso(email, url_download):
-    message_body = { 
-        "error": False, 
-        "email": email,
-        "processingLink": url_download
-    }
-
     logger.info(f"Body: {message_body}")
     logger.info(f"Processing completed successfully!")
 
     return {
         'statusCode': 200,
-        'body': message_body
+        'body': { 
+            "email": email,
+            "processingLink": url_download
+        }
     }
 
 def send_email_error(email):
     message_body = {
-        "error": True, 
         "email": email,
     }
 
