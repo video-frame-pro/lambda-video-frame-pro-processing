@@ -9,7 +9,6 @@ lambda_name     = "processing"                          # Nome da função Lambd
 lambda_handler  = "processing.lambda_handler"           # Handler da função Lambda principal
 lambda_zip_path = "../lambda/processing/processing.zip" # Caminho para o ZIP da função Lambda
 lambda_runtime  = "python3.12"                          # Runtime da função Lambda principal
-lambda_timeout  = 900                                   # Tempo limite de execução da função Lambda principal
 
 ######### LOGS CLOUD WATCH #############################################
 log_retention_days = 7 # Dias para retenção dos logs no CloudWatch

@@ -16,7 +16,6 @@ resource "aws_lambda_function" "lambda_function" {
   runtime          = var.lambda_runtime
   role             = aws_iam_role.lambda_role.arn
   filename         = var.lambda_zip_path
-  timeout          = var.lambda_timeout
   source_code_hash = filebase64sha256(var.lambda_zip_path)
 
   # Variáveis de ambiente para a Lambda
@@ -64,7 +63,7 @@ resource "aws_iam_policy" "lambda_policy" {
       },
       {
         # Permissões de acesso ao S3
-        Action   = ["s3:GetObject", "s3:PutObject", "s3:PutObjectAcl"],
+        Action   = ["s3:GetObject", "s3:PutObject"],
         Effect   = "Allow",
         Resource = "arn:aws:s3:::${var.bucket_name}/*"
       }

@@ -20,10 +20,10 @@ class TestLambdaFunction(unittest.TestCase):
         
         event = {
             'body': {
-                "videoId": "video_teste.mp4",
-                "username": "example",
+                "video_url": "video_teste.mp4",
+                "user_name": "example",
                 "email": "example@example.com",
-                "frameRate": 10
+                "frame_rate": 10
             }
         }
         context = {}
@@ -36,8 +36,8 @@ class TestLambdaFunction(unittest.TestCase):
         
     #     event = {
     #         'body': {
-    #             "videoId": "video_teste.mp4",
-    #             "username": "example",
+    #             "video_url": "video_teste.mp4",
+    #             "user_name": "example",
     #             "email": "example@example.com"
     #         }
     #     }
@@ -47,36 +47,36 @@ class TestLambdaFunction(unittest.TestCase):
 
     # def test_normalize_body_string(self):
     #     event = {
-    #         'body': '{"videoId": "video_teste.mp4", "username": "example", "email": "example@example.com", "frameRate": 10}'
+    #         'body': '{"video_url": "video_teste.mp4", "user_name": "example", "email": "example@example.com", "frame_rate": 10}'
     #     }
     #     body = normalize_body(event)
-    #     self.assertEqual(body['videoId'], "video_teste.mp4")
+    #     self.assertEqual(body['video_url'], "video_teste.mp4")
 
     # def test_normalize_body_dict(self):
     #     event = {
     #         'body': {
-    #             "videoId": "video_teste.mp4",
-    #             "username": "example",
+    #             "video_url": "video_teste.mp4",
+    #             "user_name": "example",
     #             "email": "example@example.com",
-    #             "frameRate": 10
+    #             "frame_rate": 10
     #         }
     #     }
     #     body = normalize_body(event)
-    #     self.assertEqual(body['videoId'], "video_teste.mp4")
+    #     self.assertEqual(body['video_url'], "video_teste.mp4")
 
     # def test_validate_request_success(self):
     #     body = {
-    #         "videoId": "video_teste.mp4",
-    #         "username": "example",
+    #         "video_url": "video_teste.mp4",
+    #         "user_name": "example",
     #         "email": "example@example.com",
-    #         "frameRate": 10
+    #         "frame_rate": 10
     #     }
     #     validate_request(body)
 
     # def test_validate_request_missing_fields(self):
     #     body = {
-    #         "videoId": "video_teste.mp4",
-    #         "username": "example",
+    #         "video_url": "video_teste.mp4",
+    #         "user_name": "example",
     #         "email": "example@example.com"
     #     }
     #     with self.assertRaises(ValueError):
@@ -138,7 +138,7 @@ class TestLambdaFunction(unittest.TestCase):
     #     response = send_email_sucesso("example@example.com", "http://example.com")
     #     self.assertEqual(response['statusCode'], 200)
     #     self.assertEqual(response['body']['email'], "example@example.com")
-    #     self.assertEqual(response['body']['processingLink'], "http://example.com")
+    #     self.assertEqual(response['body']['frame_url'], "http://example.com")
 
     # def test_send_email_error(self):
     #     response = send_email_error("example@example.com")

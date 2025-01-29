@@ -24,10 +24,6 @@ variable "lambda_runtime" {
   description = "Runtime da função Lambda principal"
 }
 
-variable "lambda_timeout" {
-  description = "Tempo limite de execução da função Lambda principal"
-}
-
 ######### LOGS CLOUD WATCH #############################################
 variable "log_retention_days" {
   description = "Número de dias para retenção dos logs no CloudWatch"
