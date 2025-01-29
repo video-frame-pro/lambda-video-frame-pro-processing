@@ -33,3 +33,8 @@ variable "log_retention_days" {
 variable "bucket_name" {
   description = "Nome do bucket S3 para armazenar os vídeos"
 }
+
+######### LAYER CONFIGURATION ##########################################
+variable "layer_name" {
+  description = "Nome da Layer que será utilizada na Lambda"
+}

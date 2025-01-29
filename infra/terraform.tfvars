@@ -15,3 +15,6 @@ log_retention_days = 7 # Dias para retenção dos logs no CloudWatch
 
 ######### S3 BUCKET INFOS ###############################################
 bucket_name = "video-frame-pro-s3"     # Nome do bucket S3 para armazenar os vídeos
+
+######### LAYER CONFIGURATION ##########################################
+layer_name = "lib-layer"

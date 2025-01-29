@@ -1,5 +1,4 @@
 ######### PROVEDOR AWS #################################################
-# Configuração do provedor AWS
 provider "aws" {
   region = var.aws_region
 }
@@ -7,6 +6,11 @@ provider "aws" {
 ######### DADOS AWS ####################################################
 # Obter informações sobre a conta AWS (ID da conta, ARN, etc.)
 data "aws_caller_identity" "current" {}
+
+######### REFERÊNCIA À LAYER ###########################################
+data "aws_lambda_layer_version" "lib_layer" {
+  layer_name = "${var.prefix_name}-${var.layer_name}"
+}
 
 ######### FUNÇÃO LAMBDA ###############################################
 # Função Lambda principal
@@ -17,6 +21,9 @@ resource "aws_lambda_function" "lambda_function" {
   role             = aws_iam_role.lambda_role.arn
   filename         = var.lambda_zip_path
   source_code_hash = filebase64sha256(var.lambda_zip_path)
+
+  # Adicionar a Layer na Lambda
+  layers = [data.aws_lambda_layer_version.lib_layer.arn]
 
   # Variáveis de ambiente para a Lambda
   environment {

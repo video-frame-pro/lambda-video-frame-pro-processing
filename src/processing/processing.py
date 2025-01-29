@@ -46,7 +46,7 @@ def validate_request(body):
     """
     Valida os campos obrigatórios na requisição.
     """
-    required_fields = ["video_id", "user_name", "video_url", "email", "frame_rate"]
+    required_fields = ["video_id", "user_name", "email", "frame_rate"]
     missing_fields = [field for field in required_fields if field not in body]
     if missing_fields:
         raise ValueError(f"Missing required fields: {', '.join(missing_fields)}")

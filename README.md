@@ -31,10 +31,10 @@ A função Lambda espera um evento com os seguintes campos:
 ```json
 {
    "body": {
-      "video_url": "video_exemplo.mp4",
-      "user_name": "usuario",
-      "email": "usuario@email.com",
-      "frame_rate": 10
+        "user_name": "usuario",
+        "email": "usuario@email.com",
+        "video_id": "uuid", 
+        "frame_rate": 10
    }
 }
 ```
@@ -47,9 +47,10 @@ A função Lambda espera um evento com os seguintes campos:
 ```json
 {
    "body": {
-      "email": "usuario@email.com",
-      "frame_url": "https://example.com/download.zip",
-      "error": false
+        "user_name": "usuario",
+        "email": "usuario@email.com",
+        "video_id": "uuid",
+        "frame_rate": 10
    }
 }
 ```
