@@ -18,6 +18,13 @@ resource "aws_lambda_function" "lambda_function" {
   filename         = var.lambda_zip_path
   timeout          = var.lambda_timeout
   source_code_hash = filebase64sha256(var.lambda_zip_path)
+
+  # Variáveis de ambiente para a Lambda
+  environment {
+    variables = {
+      BUCKET_NAME = var.bucket_name
+    }
+  }
 }
 
 ######### GRUPO DE LOGS ###############################################
@@ -57,9 +64,9 @@ resource "aws_iam_policy" "lambda_policy" {
       },
       {
         # Permissões de acesso ao S3
-        Action   = ["s3:GetObject", "s3:DeleteObject", "s3:PutObject", "s3:PutObjectAcl"],
+        Action   = ["s3:GetObject", "s3:PutObject", "s3:PutObjectAcl"],
         Effect   = "Allow",
-        Resource = "arn:aws:s3:::*"
+        Resource = "arn:aws:s3:::${var.bucket_name}/*"
       }
     ]
   })

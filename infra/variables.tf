@@ -7,11 +7,6 @@ variable "prefix_name" {
 variable "aws_region" {
   description = "Região AWS onde os recursos serão provisionados"
 }
-
-variable "bucket_name" {
-  description = "Nome do bucket S3 para armazenar os vídeos"
-}
-
 ######### PROJECT INFOS ################################################
 variable "lambda_name" {
   description = "Nome da função Lambda principal"
@@ -38,7 +33,7 @@ variable "log_retention_days" {
   description = "Número de dias para retenção dos logs no CloudWatch"
 }
 
-######### SSM VARIABLES INFOS ##########################################
-variable "brevo_token_ssm" {
-  description = "Caminho no SSM para o Token do Brevo"
+######### S3 BUCKET INFOS ###############################################
+variable "bucket_name" {
+  description = "Nome do bucket S3 para armazenar os vídeos"
 }
