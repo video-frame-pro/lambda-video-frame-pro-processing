@@ -45,26 +45,26 @@ def validate_request(body):
     """
     Valida os campos obrigatórios na requisição.
     """
-    required_fields = ["videoId", "username", "email", "frameRate"]
+    required_fields = ["videoId", "userName", "email", "frameRate"]
     missing_fields = [field for field in required_fields if field not in body]
     if missing_fields:
         raise ValueError(f"Missing required fields: {', '.join(missing_fields)}")
     
 def process_frames(body_message):
-    videoId = body_message['videoId']
-    username = body_message['username']
+    video_id = body_message['videoId']
+    user_name = body_message['userName']
     email = body_message['email']
-    frameRate = body_message['frameRate']
+    frame_rate = body_message['frameRate']
 
-    download_path_bucket = f"videos/{username}/{videoId}/upload/{videoId}-source.mp4"
-    lambda_video_path = f"/tmp/{videoId}"
+    download_path_bucket = f"videos/{user_name}/{video_id}/upload/{video_id}-source.mp4"
+    lambda_video_path = f"/tmp/{video_id}"
     output_folder = "/tmp/frames"
     zip_path = "/tmp/frames.zip"
-    output_zip_key = f"videos/{username}/{videoId}/processed/{os.path.basename(zip_path)}"
+    output_zip_key = f"videos/{user_name}/{video_id}/processed/{os.path.basename(zip_path)}"
 
-    if frameRate > 0:
+    if frame_rate > 0:
         download_from_s3(download_path_bucket, lambda_video_path)
-        extract_frames(lambda_video_path, output_folder, frameRate)
+        extract_frames(lambda_video_path, output_folder, frame_rate)
         create_zip(output_folder, zip_path)
         upload_to_s3(output_zip_key, zip_path)
 
@@ -78,10 +78,10 @@ def process_frames(body_message):
     else :
         return create_response(400, message="Invalid frame rate number, must be greater than 0")
     
-def download_from_s3(videoId, download_path):
+def download_from_s3(video_id, download_path):
     try:
-        s3_client.download_file(BUCKET_NAME, videoId, download_path)
-        logger.info(f"Downloaded {videoId} from S3 bucket {BUCKET_NAME}")
+        s3_client.download_file(BUCKET_NAME, video_id, download_path)
+        logger.info(f"Downloaded {video_id} from S3 bucket {BUCKET_NAME}")
     except NoCredentialsError:
         logger.info("Credentials not available")
 
@@ -92,11 +92,11 @@ def upload_to_s3(output_zip_key, file_path):
     except NoCredentialsError:
         logger.info("Credentials not available")
 
-def extract_frames(lambda_video_path, output_folder, frameRate):
+def extract_frames(lambda_video_path, output_folder, frame_rate):
     if not os.path.exists(output_folder):
         os.makedirs(output_folder)
     
-    os.system(f"/opt/bin/ffmpeg.exe -i {lambda_video_path} -vf fps=1/{frameRate} {os.path.join(output_folder, 'frame_%04d.jpg')}")
+    os.system(f"/opt/bin/ffmpeg.exe -i {lambda_video_path} -vf fps=1/{frame_rate} {os.path.join(output_folder, 'frame_%04d.jpg')}")
 
 def create_zip(output_folder, zip_path):
     with zipfile.ZipFile(zip_path, 'w') as zipf:
@@ -105,11 +105,11 @@ def create_zip(output_folder, zip_path):
                 zipf.write(os.path.join(root, file), file)
     logger.info(f"Created zip file {zip_path}")
 
-def generate_url(videoId):
+def generate_url(video_id):
     expiration=3600
     try:
         response = s3_client.generate_presigned_url('get_object',
-            Params={'Bucket': BUCKET_NAME, 'Key': videoId},
+            Params={'Bucket': BUCKET_NAME, 'Key': video_id},
             ExpiresIn=expiration)
     except NoCredentialsError:
         logger.info("Credentials not available")
