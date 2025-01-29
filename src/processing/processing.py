@@ -52,23 +52,23 @@ def validate_request(body):
     
 def process_frames(body_message):
     videoId = body_message['videoId']
-    userName = body_message['userName']
+    username = body_message['username']
     email = body_message['email']
     frameRate = body_message['frameRate']
 
-    download_path_bucket = f"entrada/{videoId}"
+    download_path_bucket = f"videos/{username}/{videoId}/upload/{videoId}-source.mp4"
     lambda_video_path = f"/tmp/{videoId}"
     output_folder = "/tmp/frames"
     zip_path = "/tmp/frames.zip"
-    output_zip_key = f"saida/{userName}/{os.path.basename(zip_path)}"
+    output_zip_key = f"videos/{username}/{videoId}/processed/{os.path.basename(zip_path)}"
 
     if frameRate > 0:
-        download_from_s3(BUCKET_NAME, download_path_bucket, lambda_video_path)
+        download_from_s3(download_path_bucket, lambda_video_path)
         extract_frames(lambda_video_path, output_folder, frameRate)
         create_zip(output_folder, zip_path)
-        upload_to_s3(BUCKET_NAME, output_zip_key, zip_path)
+        upload_to_s3(output_zip_key, zip_path)
 
-        long_url = generate_url(BUCKET_NAME, output_zip_key)
+        long_url = generate_url(output_zip_key)
 
         logger.info(f"url_download: {long_url}")
         
