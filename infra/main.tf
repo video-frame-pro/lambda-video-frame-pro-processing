@@ -21,8 +21,8 @@ resource "aws_lambda_function" "lambda_function" {
   role             = aws_iam_role.lambda_role.arn
   filename         = var.lambda_zip_path
   source_code_hash = filebase64sha256(var.lambda_zip_path)
-  timeout       = 30  # Máximo permitido no Free Tier sem preocupações
-  memory_size   = 256 # Ainda dentro do Free Tier
+  timeout       = 60  # Máximo permitido no Free Tier sem preocupações
+  memory_size   = 512 # Ainda dentro do Free Tier
 
   # Adicionar a Layer na Lambda
   layers = [data.aws_lambda_layer_version.lib_layer.arn]
